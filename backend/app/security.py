@@ -1,0 +1,33 @@
+
+from datetime import datetime, timedelta, timezone
+from jose import jwt
+from app.config import settings
+
+
+def create_access_token(user_id: int):
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=settings.access_token_minutes
+    )
+
+    payload = {
+        "sub": str(user_id),
+        "exp": expire
+    }
+
+    return jwt.encode(
+        payload,
+        settings.jwt_secret,
+        algorithm=settings.jwt_algorithm
+    )
+
+from pwdlib import PasswordHash
+
+password_hash = PasswordHash.recommended()
+
+
+def hash_password(password: str) -> str:
+    return password_hash.hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    return password_hash.verify(password, hashed_password)
